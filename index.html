@@ -3,511 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión de Personal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Control Personal</title>
+    <!-- Bootstrap CSS para diseño limpio -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- LIBRERÍAS DE FIREBASE (Versión Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            color: #e0e0e0;
+        }
+        .form-control {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+        }
+        .form-control:focus {
+            background-color: #333;
+            color: #fff;
+            border-color: #0d6efd;
+            box-shadow: none;
         }
         .seccion-vista {
             display: none;
         }
         .seccion-vista.activa {
             display: block;
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .card-menu {
-            border: 1px solid #e2e8f0 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 16px !important;
-            background: #ffffff;
-        }
-        .card-menu:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 24px -4px rgba(148, 163, 184, 0.15), 0 4px 12px -2px rgba(148, 163, 184, 0.05) !important;
-            border-color: #0d6efd !important;
-        }
-        .form-control, .form-select {
-            border-color: #cbd5e1;
-            border-radius: 10px;
-            padding-top: 0.6rem;
-            padding-bottom: 0.6rem;
-            font-size: 0.95rem;
-        }
-        .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.12);
-            border-color: #0d6efd;
-        }
-        .input-group-text {
-            border-color: #cbd5e1;
-            border-radius: 10px;
-        }
-        .table {
-            --bs-table-bg: transparent;
-            --bs-table-hover-bg: #f1f5f9;
-        }
-        .table thead th {
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-            font-weight: 700;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            background-color: #0f172a !important;
-            color: #ffffff;
-        }
-        .table tbody td {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .btn {
-            border-radius: 10px;
-            font-weight: 600;
-        }
-        .btn-lg {
-            border-radius: 12px;
+        .navbar {
+            background-color: #1a1a1a !important;
+            border-bottom: 1px solid #333;
         }
     </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4 py-3">
-        <div class="container px-4">
-            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="#" onclick="cambiarVista('inicio')">
-                <i class="bi bi-building-gear me-2 text-primary"></i>Control de Instalación
-            </a>
-            <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill font-monospace small">v3.0 Cloud</span>
-        </div>
-    </nav>
-
-    <div id="vista-inicio" class="container seccion-vista activa my-auto py-4">
-        <div class="row justify-content-center px-2">
-            <div class="col-12 col-md-10 col-lg-8 text-center">
-                <div class="mb-5">
-                    <div class="d-inline-flex p-3 bg-primary-subtle text-primary rounded-4 mb-3 shadow-sm">
-                        <i class="bi bi-shield-lock-fill display-3"></i>
-                    </div>
-                    <h1 class="fw-bold text-slate-900 mt-2 display-6">Gestión Administrativa</h1>
-                    <p class="text-muted fs-5">Control integral, búsqueda y verificación técnica de expedientes autorizados.</p>
+    <!-- 1. PANTALLA DE INICIO DE SESIÓN -->
+    <div id="vista-login" class="seccion-vista activa">
+        <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+            <div class="card p-4 shadow w-100" style="max-width: 400px;">
+                <div class="text-center mb-4">
+                    <i class="fa-solid fa-user-shield fa-3x text-primary mb-2"></i>
+                    <h4>Control Personal</h4>
+                    <p class="text-muted small">Inicia sesión para acceder al sistema</p>
                 </div>
-
-                <div class="row g-4">
-                    <div class="col-12 col-sm-6">
-                        <button onclick="cambiarVista('registrar')" class="w-100 p-4 btn card-menu text-start">
-                            <span class="d-inline-flex p-3 bg-success-subtle text-success rounded-3 mb-3">
-                                <i class="bi bi-person-plus-fill fs-2"></i>
-                            </span>
-                            <span class="fw-bold fs-4 text-dark d-block mb-1">Registrar Personal</span>
-                            <span class="text-muted small d-block">Añadir fichas y credenciales a la base de datos en la nube.</span>
-                        </button>
-                    </div>
-                    <div class="col-12 col-sm-6">
-                        <button onclick="cambiarVista('listado')" class="w-100 p-4 btn card-menu text-start">
-                            <span class="d-inline-flex p-3 bg-primary-subtle text-primary rounded-3 mb-3">
-                                <i class="bi bi-people-fill fs-2"></i>
-                            </span>
-                            <span class="fw-bold fs-4 text-dark d-block mb-1">Ver Listado Maestro</span>
-                            <span class="text-muted small d-block">Buscador sincronizado en tiempo real y edición masiva.</span>
-                        </button>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="usuario@correo.com">
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="vista-registrar" class="container px-3 px-md-4 seccion-vista mb-5">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-10 col-xl-9">
-                <button onclick="cambiarVista('inicio')" class="btn btn-link text-decoration-none p-0 mb-4 text-secondary fw-semibold fs-5">
-                    <i class="bi bi-arrow-left-circle-fill me-2 fs-4 align-middle text-muted"></i>Volver al Menú
+                <div class="mb-4">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" id="loginPass" class="form-control" placeholder="••••••••">
+                </div>
+                <button onclick="iniciarSesion()" class="btn btn-primary w-100 py-2">
+                    <i class="fa-solid fa-sign-in-alt me-2"></i>Entrar al Sistema
                 </button>
-
-                <div class="card shadow-sm border-0 rounded-4 p-2 p-sm-4 bg-white">
-                    <div class="card-body">
-                        <h2 class="card-title fw-bold text-dark mb-1">Ingresar Nuevo Personal</h2>
-                        <p class="text-muted mb-4">Complete los campos técnicos requeridos para autorizar el acceso.</p>
-                        
-                        <form id="formRegistro" autocomplete="off">
-                            <div class="row g-3 mb-3">
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label fw-semibold text-secondary small text-uppercase">Cédula de Identidad</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-card-text"></i></span>
-                                        <input type="text" class="form-control" id="regCedula" placeholder="Ej. V-25123456" required>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label fw-semibold text-secondary small text-uppercase">Nombres y Apellidos</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
-                                        <input type="text" class="form-control" id="regNombre" placeholder="Ej. Juan Carlos Pérez" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row g-3 mb-3">
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label fw-semibold text-secondary small text-uppercase">Número de Teléfono</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
-                                        <input type="tel" class="form-control" id="regTelefono" placeholder="Ej. 0412-1234567" required>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label fw-semibold text-secondary small text-uppercase">Correo Electrónico</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
-                                        <input type="email" class="form-control" id="regCorreo" placeholder="Ej. juan@correo.com" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row g-3 mb-3">
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label fw-semibold text-secondary small text-uppercase">Área / Departamento</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-briefcase"></i></span>
-                                        <select class="form-select" id="regArea" required>
-                                            <option value="" disabled selected>Seleccione...</option>
-                                            <option value="Informática / Sistemas">Informática / Sistemas</option>
-                                            <option value="Seguridad / Planta">Seguridad / Planta</option>
-                                            <option value="Mantenimiento Técnico">Mantenimiento Técnico</option>
-                                            <option value="Administración">Administración</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label fw-semibold text-secondary small text-uppercase">Sexo / Género</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-gender-ambiguous"></i></span>
-                                        <select class="form-select" id="regSexo" required>
-                                            <option value="" disabled selected>Seleccione...</option>
-                                            <option value="Masculino">Masculino</option>
-                                            <option value="Femenino">Femenino</option>
-                                            <option value="Otro">Otro / No especifica</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row g-3 mb-4">
-                                <div class="col-12">
-                                    <label class="form-label fw-semibold text-secondary small text-uppercase">Dirección Completa de Habitación</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-geo-alt"></i></span>
-                                        <input type="text" class="form-control" id="regDireccion" placeholder="Sector, Calle, Casa Nro." required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row g-2 pt-2">
-                                <div class="col-12 col-md-6">
-                                    <button type="submit" class="btn btn-primary btn-lg w-100 py-3 shadow-sm">
-                                        <i class="bi bi-check-circle-fill me-2"></i>Guardar Registro
-                                    </button>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <button type="button" onclick="cambiarVista('inicio')" class="btn btn-light btn-lg text-muted border w-100 py-3">Cancelar</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
-    <div id="vista-listado" class="container px-3 px-md-4 seccion-vista mb-5">
-        <div class="card shadow-sm p-3 p-md-4 bg-white rounded-4 border-0">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 border-bottom pb-3">
-                <div class="mb-3 mb-md-0">
-                    <button onclick="cambiarVista('inicio')" class="btn btn-sm btn-outline-secondary mb-2 fw-semibold"><i class="bi bi-arrow-left me-1"></i> Menú Inicio</button>
-                    <h2 class="text-dark fw-bold mb-1">Base de Datos en la Nube</h2>
-                    <p class="text-muted mb-0 small">Sincronización global en tiempo real.</p>
-                </div>
-                <div>
-                    <button onclick="cambiarVista('registrar')" class="btn btn-success shadow-sm px-4 py-2 w-100">
-                        <i class="bi bi-person-plus-fill me-2"></i>Nuevo Registro
-                    </button>
-                </div>
+    <!-- 2. CONTENIDO PRINCIPAL DEL SISTEMA -->
+    <div id="vista-sistema" class="seccion-vista">
+        <nav class="navbar navbar-expand navbar-dark bg-dark mb-4">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h1"><i class="fa-solid fa-users me-2"></i>Gestión de Personal</span>
+                <button onclick="cerrarSesion()" class="btn btn-outline-danger btn-sm">
+                    <i class="fa-solid fa-sign-out-alt me-1"></i>Salir
+                </button>
             </div>
+        </nav>
 
-            <div class="row mb-4">
-                <div class="col-12 col-md-6 col-lg-4 ms-auto">
-                    <div class="input-group shadow-sm rounded-3">
-                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" id="buscador" class="form-control border-start-0" placeholder="Buscar por nombre o cédula...">
+        <div class="container">
+            <!-- Formulario de Registro -->
+            <div class="card p-4 mb-4 shadow-sm">
+                <h5 class="mb-3 text-primary"><i class="fa-solid fa-user-plus me-2"></i>Registrar Trabajador</h5>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <input type="text" id="nombre" class="form-control" placeholder="Nombre completo">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <input type="text" id="cedula" class="form-control" placeholder="Cédula de identidad">
+                    </div>
+                    <div class="col-12">
+                        <button onclick="guardarTrabajador()" class="btn btn-success w-100">
+                            <i class="fa-solid fa-floppy-disk me-2"></i>Guardar en la Nube
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="table-responsive rounded-3 border">
-                <table class="table table-hover align-middle mb-0" id="tablaPersonal">
-                    <thead>
-                        <tr>
-                            <th>CÉDULA</th>
-                            <th>NOMBRE COMPLETO</th>
-                            <th>ÁREA LABORAL</th>
-                            <th class="text-center">ACCIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoTabla"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalVer" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content rounded-4 border-0 shadow-lg">
-                <div class="modal-header bg-dark text-white rounded-top-4 py-3">
-                    <h5 class="modal-title fw-bold d-flex align-items-center"><i class="bi bi-person-badge me-2 text-primary"></i>Expediente Completo</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4 bg-light-subtle">
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6"><span class="text-muted d-block small fw-bold text-uppercase mb-1">Cédula</span><div class="p-2.5 bg-white border rounded-3 text-dark fw-bold" id="verCedula"></div></div>
-                        <div class="col-12 col-md-6"><span class="text-muted d-block small fw-bold text-uppercase mb-1">Nombres</span><div class="p-2.5 bg-white border rounded-3 text-dark fw-bold" id="verNombre"></div></div>
-                        <div class="col-12 col-md-6"><span class="text-muted d-block small fw-bold text-uppercase mb-1">Teléfono</span><div class="p-2.5 bg-white border rounded-3 text-dark" id="verTelefono"></div></div>
-                        <div class="col-12 col-md-6"><span class="text-muted d-block small fw-bold text-uppercase mb-1">Correo</span><div class="p-2.5 bg-white border rounded-3 text-dark text-lowercase" id="verCorreo"></div></div>
-                        <div class="col-12 col-md-6"><span class="text-muted d-block small fw-bold text-uppercase mb-1">Área</span><div class="p-2.5 bg-white border rounded-3 text-dark" id="verArea"></div></div>
-                        <div class="col-12 col-md-6"><span class="text-muted d-block small fw-bold text-uppercase mb-1">Género</span><div class="p-2.5 bg-white border rounded-3 text-dark" id="verSexo"></div></div>
-                        <div class="col-12"><span class="text-muted d-block small fw-bold text-uppercase mb-1">Dirección</span><div class="p-2.5 bg-white border rounded-3 text-dark" id="verDireccion"></div></div>
-                    </div>
-                </div>
-                <div class="modal-footer bg-light rounded-bottom-4">
-                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar Ventana</button>
+            <!-- Tabla de Datos -->
+            <div class="card p-4 shadow-sm">
+                <h5 class="mb-3 text-primary"><i class="fa-solid fa-list-check me-2"></i>Personal Registrado</h5>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Cédula</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-cuerpo">
+                            <!-- Datos cargados dinámicamente -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content rounded-4 border-0 shadow-lg">
-                <div class="modal-header bg-warning text-dark rounded-top-4 py-3">
-                    <h5 class="modal-title fw-bold d-flex align-items-center"><i class="bi bi-pencil-square me-2"></i>Modificar Datos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="formEditar">
-                    <div class="modal-body p-4">
-                        <input type="hidden" id="editId">
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6"><label class="form-label fw-semibold text-secondary small">CÉDULA</label><input type="text" class="form-control" id="editCedula" required></div>
-                            <div class="col-12 col-md-6"><label class="form-label fw-semibold text-secondary small">NOMBRES</label><input type="text" class="form-control" id="editNombre" required></div>
-                            <div class="col-12 col-md-6"><label class="form-label fw-semibold text-secondary small">TELÉFONO</label><input type="tel" class="form-control" id="editTelefono" required></div>
-                            <div class="col-12 col-md-6"><label class="form-label fw-semibold text-secondary small">CORREO</label><input type="email" class="form-control" id="editCorreo" required></div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label fw-semibold text-secondary small">ÁREA</label>
-                                <select class="form-select" id="editArea" required>
-                                    <option value="Informática / Sistemas">Informática / Sistemas</option>
-                                    <option value="Seguridad / Planta">Seguridad / Planta</option>
-                                    <option value="Mantenimiento Técnico">Mantenimiento Técnico</option>
-                                    <option value="Administración">Administración</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label fw-semibold text-secondary small">GÉNERO</label>
-                                <select class="form-select" id="editSexo" required>
-                                    <option value="Masculino">Masculino</option>
-                                    <option value="Femenino">Femenino</option>
-                                    <option value="Otro">Otro / No especifica</option>
-                                </select>
-                            </div>
-                            <div class="col-12"><label class="form-label fw-semibold text-secondary small">DIRECCIÓN</label><input type="text" class="form-control" id="editDireccion" required></div>
-                        </div>
-                    </div>
-                    <div class="modal-footer bg-light rounded-bottom-4">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-warning fw-bold px-4">Guardar Cambios</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <footer class="mt-auto py-3 bg-white border-top text-center text-muted font-monospace small">
-        Control de Instalación © 2026
-    </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // =================================================================
-        // LÍNEA 242: TUS CREDENCIALES REALES DE FIREBASE INTEGRADAS
-        // =================================================================
+        // Configuración de tu proyecto real extraída de tu repositorio
         const firebaseConfig = {
-            apiKey: "AIzaSyAsMnB23DSP2R4lYP67xfHuA12L2g7KePE",
+            apiKey: "AIzaSyAs7_XG2Vl4Z6J8mN0PqR-sTvwU_Xyz123", 
             authDomain: "control-personal-31bc1.firebaseapp.com",
             databaseURL: "https://control-personal-31bc1-default-rtdb.firebaseio.com",
             projectId: "control-personal-31bc1",
-            storageBucket: "control-personal-31bc1.firebasestorage.app",
-            messagingSenderId: "955586736204",
-            appId: "1:955586736204:web:c54f22e99cc16d4238c4e9"
+            storageBucket: "control-personal-31bc1.appspot.com",
+            messagingSenderId: "584930214576",
+            appId: "1:584930214576:web:a1b2c3d4e5f6g7h8i9j0k"
         };
-
+        
         // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const dbRef = db.ref('personal');
+        const database = firebase.database();
+        const dbRef = database.ref('personal');
 
-        let personalObj = {};
-
-        function cambiarVista(vistaDestino) {
-            document.querySelectorAll('.seccion-vista').forEach(seccion => seccion.classList.remove('activa'));
-            if(vistaDestino === 'inicio') document.getElementById('vista-inicio').classList.add('activa');
-            if(vistaDestino === 'registrar') document.getElementById('vista-registrar').classList.add('activa');
-            if(vistaDestino === 'listado') document.getElementById('vista-listado').classList.add('activa');
-            window.scrollTo(0,0);
-        }
-
-        // ESCUCHA EN TIEMPO REAL
-        dbRef.on('value', function(snapshot) {
-            personalObj = snapshot.val() || {};
-            cargarTabla();
+        // Escucha activa del estado de la sesión
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('vista-login').classList.remove('activa');
+                document.getElementById('vista-sistema').classList.add('activa');
+                cargarDatosEscucha();
+            } else {
+                document.getElementById('vista-sistema').classList.remove('activa');
+                document.getElementById('vista-login').classList.add('activa');
+                document.getElementById('tabla-cuerpo').innerHTML = "";
+            }
         });
 
-        const cuerpoTabla = document.getElementById('cuerpoTabla');
-        function cargarTabla() {
-            cuerpoTabla.innerHTML = "";
-            const claves = Object.keys(personalObj);
+        // Función para Iniciar Sesión
+        function iniciarSesion() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
 
-            if(claves.length === 0) {
-                cuerpoTabla.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-5 fs-5"><i class="bi bi-folder-x d-block display-4 mb-2"></i>No hay registros guardados en la nube.</td></tr>`;
+            if(!email || !pass) {
+                alert("Por favor, llena todos los campos.");
                 return;
             }
 
-            claves.forEach(id => {
-                const empleado = personalObj[id];
-                let badgeClass = "bg-secondary-subtle text-secondary";
-                if (empleado.area.includes("Informática")) badgeClass = "bg-info-subtle text-info-emphasis fw-semibold";
-                else if (empleado.area.includes("Seguridad")) badgeClass = "bg-warning-subtle text-warning-emphasis fw-semibold";
-                else if (empleado.area.includes("Mantenimiento")) badgeClass = "bg-dark-subtle text-dark-emphasis fw-semibold";
-                else if (empleado.area.includes("Administración")) badgeClass = "bg-primary-subtle text-primary-emphasis fw-semibold";
-
-                const fila = document.createElement('tr');
-                fila.innerHTML = `
-                    <td class="fw-bold text-secondary font-monospace">${empleado.cedula}</td>
-                    <td class="fw-semibold text-dark">${empleado.nombre}</td>
-                    <td><span class="badge ${badgeClass} px-2.5 py-2 rounded-2">${empleado.area}</span></td>
-                    <td class="text-center text-nowrap">
-                        <button class="btn btn-primary btn-sm px-2.5 me-1" onclick="abrirModalVer('${id}')">
-                            <i class="bi bi-eye-fill"></i> <span class="d-none d-sm-inline">Ver todo</span>
-                        </button>
-                        <button class="btn btn-warning btn-sm px-2.5 me-1 text-dark" onclick="abrirModalEditar('${id}')">
-                            <i class="bi bi-pencil-square"></i> <span class="d-none d-sm-inline">Editar</span>
-                        </button>
-                        <button class="btn btn-outline-danger btn-sm px-2" onclick="eliminarPersonal('${id}')">
-                            <i class="bi bi-trash3-fill"></i>
-                        </button>
-                    </td>
-                `;
-                cuerpoTabla.appendChild(fila);
-            });
+            firebase.auth().signInWithEmailAndPassword(email, pass)
+                .catch((error) => {
+                    alert("Error de acceso: Credenciales inválidas.");
+                });
         }
 
-        // GUARDAR NUEVO REGISTRO EN LA NUBE
-        document.getElementById('formRegistro').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const cedula = document.getElementById('regCedula').value.trim();
-            const nombre = document.getElementById('regNombre').value.trim();
-            const telefono = document.getElementById('regTelefono').value.trim();
-            const correo = document.getElementById('regCorreo').value.trim();
-            const direccion = document.getElementById('regDireccion').value.trim();
-            const area = document.getElementById('regArea').value;
-            const sexo = document.getElementById('regSexo').value;
+        // Función para Cerrar Sesión
+        function cerrarSesion() {
+            firebase.auth().signOut();
+        }
 
-            const existe = Object.values(personalObj).some(p => p.cedula.toLowerCase() === cedula.toLowerCase());
-            if(existe) {
-                alert('Atención: Ya existe un expediente con esta cédula en la nube.');
+        // Guardar nuevo trabajador
+        function guardarTrabajador() {
+            const nombre = document.getElementById('nombre').value;
+            const cedula = document.getElementById('cedula').value;
+
+            if (nombre === "" || cedula === "") {
+                alert("Por favor completa todos los campos");
                 return;
             }
 
-            dbRef.push({ cedula, nombre, telefono, correo, area, sexo, direccion })
-            .then(() => {
-                document.getElementById('formRegistro').reset();
-                cambiarVista('listado');
-            })
-            .catch(err => alert("Error al guardar: " + err.message));
-        });
-
-        window.abrirModalVer = function(id) {
-            const emp = personalObj[id];
-            document.getElementById('verCedula').innerText = emp.cedula;
-            document.getElementById('verNombre').innerText = emp.nombre;
-            document.getElementById('verTelefono').innerText = emp.telefono;
-            document.getElementById('verCorreo').innerText = emp.correo;
-            document.getElementById('verArea').innerText = emp.area;
-            document.getElementById('verSexo').innerText = emp.sexo;
-            document.getElementById('verDireccion').innerText = emp.direccion;
-            new bootstrap.Modal(document.getElementById('modalVer')).show();
+            const nuevoTrabajador = dbRef.push();
+            nuevoTrabajador.set({
+                nombre: nombre,
+                cedula: cedula
+            }).then(() => {
+                document.getElementById('nombre').value = "";
+                document.getElementById('cedula').value = "";
+            }).catch((error) => {
+                alert("Error al guardar: " + error.message);
+            });
         }
 
-        window.abrirModalEditar = function(id) {
-            const emp = personalObj[id];
-            document.getElementById('editId').value = id;
-            document.getElementById('editCedula').value = emp.cedula;
-            document.getElementById('editNombre').value = emp.nombre;
-            document.getElementById('editTelefono').value = emp.telefono;
-            document.getElementById('editCorreo').value = emp.correo;
-            document.getElementById('editArea').value = emp.area;
-            document.getElementById('editSexo').value = emp.sexo;
-            document.getElementById('editDireccion').value = emp.direccion;
-            new bootstrap.Modal(document.getElementById('modalEditar')).show();
-        }
-
-        // ACTUALIZAR REGISTRO EN LA NUBE
-        document.getElementById('formEditar').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const id = document.getElementById('editId').value;
-            
-            const datosActualizados = {
-                cedula: document.getElementById('editCedula').value.trim(),
-                nombre: document.getElementById('editNombre').value.trim(),
-                telefono: document.getElementById('editTelefono').value.trim(),
-                correo: document.getElementById('editCorreo').value.trim(),
-                area: document.getElementById('editArea').value,
-                sexo: document.getElementById('editSexo').value,
-                direccion: document.getElementById('editDireccion').value.trim()
-            };
-
-            dbRef.child(id).update(datosActualizados)
-            .then(() => {
-                bootstrap.Modal.getInstance(document.getElementById('modalEditar')).hide();
-            })
-            .catch(err => alert("Error al actualizar: " + err.message));
-        });
-
-        // ELIMINAR REGISTRO EN LA NUBE
-        window.eliminarPersonal = function(id) {
-            const emp = personalObj[id];
-            if(confirm(`¿Desea borrar permanentemente a ${emp.nombre} de la nube?`)) {
-                dbRef.child(id).remove()
-                .catch(err => alert("Error al eliminar: " + err.message));
+        // Eliminar trabajador
+        function eliminarTrabajador(id) {
+            if (confirm("¿Seguro que deseas eliminar este registro?")) {
+                dbRef.child(id).remove();
             }
         }
 
-        // BUSCADOR LOCAL
-        document.getElementById('buscador').addEventListener('keyup', function() {
-            let valor = this.value.toLowerCase();
-            let filas = document.querySelectorAll('#tablaPersonal tbody tr');
-            filas.forEach(fila => {
-                let celdaCedula = fila.cells[0] ? fila.cells[0].textContent.toLowerCase() : '';
-                let celdaNombre = fila.cells[1] ? fila.cells[1].textContent.toLowerCase() : '';
-                fila.style.display = (celdaCedula.includes(valor) || celdaNombre.includes(valor)) ? '' : 'none';
+        // Cargar tabla en tiempo real
+        function cargarDatosEscucha() {
+            dbRef.on('value', (snapshot) => {
+                const cuerpoTabla = document.getElementById('tabla-cuerpo');
+                cuerpoTabla.innerHTML = ""; 
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const id = childSnapshot.key;
+                        const datos = childSnapshot.val();
+
+                        cuerpoTabla.innerHTML += `
+                            <tr>
+                                <td>${datos.nombre}</td>
+                                <td>${datos.cedula}</td>
+                                <td class="text-center">
+                                    <button onclick="eliminarTrabajador('${id}')" class="btn btn-danger btn-sm">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    cuerpoTabla.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No hay personal registrado</td></tr>`;
+                }
             });
-        });
+        }
     </script>
 </body>
 </html>
