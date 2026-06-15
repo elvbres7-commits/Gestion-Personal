@@ -11,36 +11,63 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <style>
-        body { background-color: #121212; color: #e0e0e0; }
-        .card { background-color: #1e1e1e; border: 1px solid #333; }
+        body { background-color: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+        .card { background-color: #1e1e1e; border: 1px solid #333; color: #e0e0e0; }
+        .form-control { background-color: #2a2a2a; border: 1px solid #444; color: #fff; }
         .seccion-vista { display: none; }
         .seccion-vista.activa { display: block; }
+        .navbar { background-color: #1a1a1a !important; border-bottom: 1px solid #333; }
     </style>
 </head>
 <body>
 
     <div id="vista-login" class="seccion-vista activa">
         <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-            <div class="card p-4 w-100" style="max-width: 400px;">
-                <h4 class="text-center mb-3">Identificación</h4>
-                <input type="text" id="nombreUsuario" class="form-control mb-3" placeholder="Ingresa tu nombre...">
-                <button onclick="entrarAlSistema()" class="btn btn-primary w-100">Entrar</button>
+            <div class="card p-4 shadow w-100" style="max-width: 400px;">
+                <div class="text-center mb-4">
+                    <i class="fa-solid fa-user-shield fa-3x text-primary mb-2"></i>
+                    <h4>Control Personal</h4>
+                    <p class="text-muted small">Ingresa tu nombre para comenzar</p>
+                </div>
+                <div class="mb-4">
+                    <input type="text" id="nombreUsuario" class="form-control" placeholder="Escribe tu nombre aquí...">
+                </div>
+                <button onclick="entrarAlSistema()" class="btn btn-primary w-100 py-2">
+                    <i class="fa-solid fa-door-open me-2"></i>Entrar al Sistema
+                </button>
             </div>
         </div>
     </div>
 
     <div id="vista-sistema" class="seccion-vista">
-        <div class="container mt-4">
-            <div class="card p-4 mb-4">
-                <h5>Registrar Trabajador</h5>
-                <input type="text" id="nombre" class="form-control mb-2" placeholder="Nombre completo">
-                <input type="text" id="cedula" class="form-control mb-2" placeholder="Cédula">
-                <button onclick="guardarTrabajador()" class="btn btn-success w-100">Guardar</button>
+        <nav class="navbar navbar-expand navbar-dark bg-dark mb-4">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h1"><i class="fa-solid fa-users me-2"></i>Gestión de Personal</span>
+                <button onclick="location.reload()" class="btn btn-outline-danger btn-sm">Salir</button>
             </div>
-            <table class="table table-dark table-hover">
-                <thead><tr><th>Nombre</th><th>Cédula</th><th>Registrado por</th><th>Acción</th></tr></thead>
-                <tbody id="tabla-cuerpo"></tbody>
-            </table>
+        </nav>
+
+        <div class="container">
+            <div class="card p-4 mb-4 shadow-sm">
+                <h5 class="mb-3 text-primary"><i class="fa-solid fa-user-plus me-2"></i>Registrar Trabajador</h5>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6"><input type="text" id="nombre" class="form-control" placeholder="Nombre completo"></div>
+                    <div class="col-12 col-md-6"><input type="text" id="cedula" class="form-control" placeholder="Cédula de identidad"></div>
+                    <div class="col-12">
+                        <button onclick="guardarTrabajador()" class="btn btn-success w-100"><i class="fa-solid fa-floppy-disk me-2"></i>Guardar en la Nube</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-4 shadow-sm">
+                <h5 class="mb-3 text-primary"><i class="fa-solid fa-list-check me-2"></i>Personal Registrado</h5>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle">
+                        <thead><tr><th>Nombre</th><th>Cédula</th><th>Registrado por</th><th class="text-center">Acción</th></tr></thead>
+                        <tbody id="tabla-cuerpo"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -55,33 +82,39 @@
         let usuarioActual = "";
 
         function entrarAlSistema() {
-            usuarioActual = document.getElementById('nombreUsuario').value.trim();
-            if(usuarioActual) {
-                document.getElementById('vista-login').classList.remove('activa');
-                document.getElementById('vista-sistema').classList.add('activa');
-                cargarDatos();
-            } else { alert("Por favor escribe tu nombre"); }
+            const input = document.getElementById('nombreUsuario').value.trim();
+            if(!input) { alert("Por favor, ingresa un nombre."); return; }
+            usuarioActual = input;
+            document.getElementById('vista-login').classList.remove('activa');
+            document.getElementById('vista-sistema').classList.add('activa');
+            cargarDatos();
         }
 
         function guardarTrabajador() {
             const nom = document.getElementById('nombre').value;
             const ced = document.getElementById('cedula').value;
-            if(nom && ced) {
-                dbRef.push({ nombre: nom, cedula: ced, quien: usuarioActual });
+            if (!nom || !ced) { alert("Completa los campos"); return; }
+
+            dbRef.push({
+                nombre: nom,
+                cedula: ced,
+                quien: usuarioActual,
+                fecha: new Date().toLocaleDateString()
+            }).then(() => {
                 document.getElementById('nombre').value = "";
                 document.getElementById('cedula').value = "";
-            }
+            });
         }
 
         function cargarDatos() {
             dbRef.on('value', (snap) => {
-                let html = "";
+                const cuerpo = document.getElementById('tabla-cuerpo');
+                cuerpo.innerHTML = "";
                 snap.forEach((c) => {
                     let d = c.val();
-                    html += `<tr><td>${d.nombre}</td><td>${d.cedula}</td><td>${d.quien}</td>
-                    <td><button onclick="dbRef.child('${c.key}').remove()" class="btn btn-danger btn-sm">X</button></td></tr>`;
+                    cuerpo.innerHTML += `<tr><td>${d.nombre}</td><td>${d.cedula}</td><td>${d.quien}</td>
+                    <td class="text-center"><button onclick="dbRef.child('${c.key}').remove()" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i></button></td></tr>`;
                 });
-                document.getElementById('tabla-cuerpo').innerHTML = html;
             });
         }
     </script>
