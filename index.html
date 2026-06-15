@@ -3,40 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Admin Pro</title>
+    <title>RH Pro | Gestión</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
-        body { background: #eef2f3; font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; }
-        .card-app { background: white; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: none; margin: 15px; padding: 20px; }
-        .btn-primary { background: #4a90e2; border: none; border-radius: 12px; }
-        .nav-fixed { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 15px; display: flex; justify-content: space-around; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; }
+        :root { --primary: #6366f1; }
+        body { background: #f8fafc; font-family: 'Segoe UI', sans-serif; padding-bottom: 80px; }
+        .card-app { background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); padding: 20px; margin: 15px; }
+        .nav-fixed { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px; border-top: 1px solid #e2e8f0; }
         .vista { display: none; } .activa { display: block; }
-        .item-list { background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .input-group-text { background: none; border: none; }
+        .btn-primary { background: var(--primary); border: none; }
     </style>
 </head>
 <body>
 
     <div id="login" class="vista activa container mt-5">
         <div class="card-app text-center">
-            <i class="fas fa-lock fa-3x text-primary mb-3"></i>
-            <h4>Acceso al Sistema</h4>
+            <h4 class="text-primary mb-4"><i class="fas fa-user-shield"></i> Acceso Admin</h4>
             <input type="password" id="pass" class="form-control mb-3" placeholder="Clave secreta">
-            <button onclick="verificar()" class="btn btn-primary w-100">Ingresar</button>
+            <button onclick="verificar()" class="btn btn-primary w-100">Entrar al Sistema</button>
         </div>
     </div>
 
     <div id="sistema" class="vista">
         <div id="form" class="vista card-app">
-            <h5 class="mb-4">Registrar Personal</h5>
-            <input type="text" id="nombres" class="form-control mb-2" placeholder="Nombre completo">
-            <input type="text" id="cedula" class="form-control mb-2" placeholder="Cédula">
-            <input type="text" id="telefono" class="form-control mb-2" placeholder="Teléfono">
-            <input type="email" id="correo" class="form-control mb-2" placeholder="Correo">
-            <textarea id="direccion" class="form-control mb-3" placeholder="Dirección"></textarea>
-            <button onclick="guardar()" class="btn btn-success w-100">Guardar Trabajador</button>
+            <h5 id="tituloForm" class="mb-3">Registrar Trabajador</h5>
+            <input type="hidden" id="editKey">
+            <div class="row g-2">
+                <input type="text" id="nombres" class="form-control" placeholder="Nombres y Apellidos">
+                <input type="text" id="cedula" class="form-control" placeholder="Cédula">
+                <input type="text" id="telefono" class="form-control" placeholder="Teléfono">
+                <input type="email" id="correo" class="form-control" placeholder="Correo">
+                <input type="date" id="fechaNac" class="form-control">
+                <select id="sexo" class="form-control"><option value="">Sexo</option><option>Masculino</option><option>Femenino</option></select>
+                <input type="text" id="cargo" class="form-control" placeholder="Cargo">
+                <input type="date" id="fechaIng" class="form-control">
+                <textarea id="direccion" class="form-control" placeholder="Dirección"></textarea>
+                <button onclick="guardar()" class="btn btn-primary">Guardar Registro</button>
+            </div>
         </div>
 
         <div id="lista" class="vista activa card-app">
@@ -46,10 +53,13 @@
     </div>
 
     <div class="nav-fixed">
-        <a class="text-decoration-none text-dark" onclick="cambiarVista('lista')"><i class="fas fa-list fa-lg"></i><br>Lista</a>
-        <a class="text-decoration-none text-dark" onclick="cambiarVista('form')"><i class="fas fa-user-plus fa-lg"></i><br>Registrar</a>
+        <a class="text-decoration-none text-muted" onclick="cambiarVista('lista')"><i class="fas fa-list"></i> Lista</a>
+        <a class="text-decoration-none text-muted" onclick="cambiarVista('form')"><i class="fas fa-plus"></i> Nuevo</a>
     </div>
 
+    <div class="modal fade" id="modalDetalles" tabindex="-1"><div class="modal-dialog"><div class="modal-content" id="contenidoDetalles"></div></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const db = firebase.initializeApp({
             apiKey: "AIzaSyAs7_XG2Vl4Z6J8mN0PqR-sTvwU_Xyz123",
@@ -61,13 +71,11 @@
                 document.getElementById('login').classList.remove('activa');
                 document.getElementById('sistema').classList.add('activa');
                 cargar();
-            } else { alert("Clave incorrecta"); }
+            } else { alert("Acceso denegado"); }
         }
 
         function cambiarVista(v) {
-            document.querySelectorAll('.vista').forEach(e => {
-                if(e.id !== 'login' && e.id !== 'sistema') e.classList.remove('activa');
-            });
+            document.querySelectorAll('.vista').forEach(e => { if(e.id !== 'login' && e.id !== 'sistema') e.classList.remove('activa'); });
             document.getElementById(v).classList.add('activa');
         }
 
@@ -77,16 +85,16 @@
                 cedula: document.getElementById('cedula').value,
                 telefono: document.getElementById('telefono').value,
                 correo: document.getElementById('correo').value,
+                fechaNac: document.getElementById('fechaNac').value,
+                sexo: document.getElementById('sexo').value,
+                cargo: document.getElementById('cargo').value,
+                fechaIng: document.getElementById('fechaIng').value,
                 direccion: document.getElementById('direccion').value
             };
-            
-            if(!data.nombres || !data.cedula) { alert("Nombre y Cédula son obligatorios"); return; }
-
-            db.push(data).then(() => {
-                alert("Guardado correctamente");
-                ['nombres','cedula','telefono','correo','direccion'].forEach(i => document.getElementById(i).value = "");
-                cambiarVista('lista');
-            });
+            const key = document.getElementById('editKey').value;
+            key ? db.child(key).update(data) : db.push(data);
+            alert("Guardado");
+            location.reload();
         }
 
         function cargar() {
@@ -94,20 +102,37 @@
                 let html = '';
                 snap.forEach(c => {
                     let d = c.val();
-                    html += `<div class="item-list fila" data-cedula="${d.cedula}">
-                        <strong>${d.nombres}</strong><br>
-                        <small>Cédula: ${d.cedula} | Tel: ${d.telefono}</small>
-                        <button class="btn btn-sm btn-danger float-end" onclick="db.child('${c.key}').remove()">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                    html += `<div class="card p-3 mb-2 fila" data-cedula="${d.cedula}">
+                        <strong>${d.nombres}</strong><br><small>Cédula: ${d.cedula}</small>
+                        <div class="mt-2"><button class="btn btn-sm btn-info" onclick="ver('${c.key}')">Ver</button>
+                        <button class="btn btn-sm btn-warning" onclick="edit('${c.key}')">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="db.child('${c.key}').remove()">Del</button></div>
                     </div>`;
                 });
                 document.getElementById('tabla-body').innerHTML = html;
             });
         }
 
-        function filtrar(val) {
-            document.querySelectorAll('.fila').forEach(f => f.style.display = f.dataset.cedula.includes(val) ? "block" : "none");
+        function ver(k) {
+            db.child(k).once('value', s => {
+                let d = s.val();
+                document.getElementById('contenidoDetalles').innerHTML = `<div class="p-4"><h5>${d.nombres}</h5><hr><p>Tel: ${d.telefono}<br>Correo: ${d.correo}<br>Cargo: ${d.cargo}<br>Dir: ${d.direccion}</p></div>`;
+                new bootstrap.Modal(document.getElementById('modalDetalles')).show();
+            });
+        }
+
+        function edit(k) {
+            db.child(k).once('value', s => {
+                let d = s.val();
+                document.getElementById('editKey').value = k;
+                document.getElementById('nombres').value = d.nombres;
+                document.getElementById('cedula').value = d.cedula;
+                cambiarVista('form');
+            });
+        }
+
+        function filtrar(v) {
+            document.querySelectorAll('.fila').forEach(f => f.style.display = f.dataset.cedula.includes(v) ? "block" : "none");
         }
     </script>
 </body>
