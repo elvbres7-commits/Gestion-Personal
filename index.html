@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Unificado de Gestión de Personal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
+    <style>
+        /* Animación suave para el cambio de pantallas */
+        .seccion-vista {
+            display: none;
+        }
+        .seccion-vista.activa {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-menu:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold fs-4" href="#" onclick="cambiarVista('inicio')">
+                <i class="bi bi-building-gear me-2"></i>Control de Instalación
+            </a>
+            <span class="navbar-text text-white-50 d-none d-md-inline fs-5">Módulo Todo en Uno</span>
+        </div>
+    </nav>
+
+
+    <div id="vista-inicio" class="container seccion-vista activa my-auto">
+        <div class="row justify-content-center px-2">
+            <div class="col-12 col-md-10 col-lg-8 text-center">
+                <div class="mb-5">
+                    <i class="bi bi-shield-lock-fill text-primary display-1"></i>
+                    <h1 class="fw-bold text-dark mt-2 display-5">Gestión de Personal</h1>
+                    <p class="text-muted fs-5">Administración integral y control de expedientes de los trabajadores.</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-12 col-sm-6">
+                        <button onclick="cambiarVista('registrar')" class="btn btn-outline-primary bg-white shadow-sm w-100 p-4 border-2 rounded-3 btn-menu">
+                            <i class="bi bi-person-plus-fill display-4 mb-3 text-success d-block"></i>
+                            <span class="fw-bold fs-4 text-dark d-block">Registrar Personal</span>
+                            <span class="text-muted small d-block mt-1">Añadir nuevos expedientes</span>
+                        </button>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <button onclick="cambiarVista('listado')" class="btn btn-outline-primary bg-white shadow-sm w-100 p-4 border-2 rounded-3 btn-menu">
+                            <i class="bi bi-people-fill display-4 mb-3 text-primary d-block"></i>
+                            <span class="fw-bold fs-4 text-dark d-block">Ver Listado</span>
+                            <span class="text-muted small d-block mt-1">Buscar, ver detalles y editar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="vista-registrar" class="container-fluid px-3 px-md-4 seccion-vista mb-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-9">
+                
+                <button onclick="cambiarVista('inicio')" class="btn btn-link text-decoration-none p-0 mb-4 text-muted fw-semibold fs-5">
+                    <i class="bi bi-arrow-left-square-fill me-2 fs-4 align-middle"></i>Volver al Menú Principal
+                </button>
+
+                <div class="card shadow border-0 rounded-3 p-2 p-sm-4 bg-white">
+                    <div class="card-body">
+                        <h2 class="card-title fw-bold text-dark mb-2">Ingresar Nuevo Personal</h2>
+                        <p class="text-muted mb-4 fs-5">Ficha de registro técnica obligatoria (7 campos necesarios).</p>
+                        
+                        <form id="formRegistro" autocomplete="off">
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-bold text-secondary">Cédula de Identidad</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-card-text"></i></span>
+                                        <input type="text" class="form-control" id="regCedula" placeholder="Ej. V-25123456" required>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-bold text-secondary">Nombres y Apellidos Completos</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                                        <input type="text" class="form-control" id="regNombre" placeholder="Ej. Juan Carlos Pérez" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-bold text-secondary">Número de Teléfono</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                                        <input type="tel" class="form-control" id="regTelefono" placeholder="Ej. 0412-1234567" required>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-bold text-secondary">Correo Electrónico</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" class="form-control" id="regCorreo" placeholder="Ej. juan@correo.com" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-bold text-secondary">Área o Departamento Asignado</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-briefcase"></i></span>
+                                        <select class="form-select" id="regArea" required>
+                                            <option value="" disabled selected>Seleccione el departamento...</option>
+                                            <option value="Informática / Sistemas">Informática / Sistemas</option>
+                                            <option value="Seguridad / Planta">Seguridad / Planta</option>
+                                            <option value="Mantenimiento Técnico">Mantenimiento Técnico</option>
+                                            <option value="Administración">Administración</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label fw-bold text-secondary">Sexo / Género</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-gender-ambiguous"></i></span>
+                                        <select class="form-select" id="regSexo" required>
+                                            <option value="" disabled selected>Seleccione género...</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                            <option value="Otro">Otro / No especifica</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-5">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-secondary">Dirección Completa de Habitación</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-geo-alt"></i></span>
+                                        <input type="text" class="form-control" id="regDireccion" placeholder="Ej. Urbanización, Calle principal, Casa Nro. X" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row pt-2">
+                                <div class="col-12 col-md-6 mb-3 mb-md-0">
+                                    <button type="submit" class="btn btn-primary btn-lg fw-bold w-100 py-3 shadow-sm">
+                                        <i class="bi bi-check-circle-fill me-2"></i>Guardar e Ir al Listado
+                                    </button>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <button type="button" onclick="cambiarVista('inicio')" class="btn btn-light btn-lg text-muted border w-100 py-3">Cancelar</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div id="vista-listado" class="container-fluid px-3 px-md-4 seccion-vista mb-5">
+        <div class="card shadow-sm p-3 p-md-4 bg-white rounded-3 border-0">
+            
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 border-bottom pb-3">
+                <div>
+                    <button onclick="cambiarVista('inicio')" class="btn btn-sm btn-outline-secondary mb-2 fw-semibold"><i class="bi bi-arrow-left me-1"></i> Panel de Inicio</button>
+                    <h2 class="text-dark fw-bold mb-1">Base de Datos Resumida</h2>
+                    <p class="text-muted mb-0">Usa los botones para visualizar toda la información oculta o editar.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <button onclick="cambiarVista('registrar')" class="btn btn-success btn-lg shadow-sm fw-semibold px-4 py-2 w-100 w-md-auto">
+                        <i class="bi bi-person-plus-fill me-2"></i>Nuevo Registro
+                    </button>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12 col-md-6 col-lg-4 ms-auto">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" id="buscador" class="form-control border-start-0 fs-6" placeholder="Buscar por nombre o cédula...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle fs-6" id="tablaPersonal">
+                    <thead class="table-dark text-uppercase">
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre Completo</th>
+                            <th>Área Laboral</th>
+                            <th class="text-center">Acciones de Expediente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla">
+                        </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="modalVer" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content rounded-3 border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-badge me-2"></i>Expediente de Información Completa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3 fs-5">
+                        <div class="col-12 col-md-6">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Cédula de Identidad</span>
+                            <div class="p-2 bg-light rounded text-dark fw-bold" id="verCedula"></div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Nombres y Apellidos</span>
+                            <div class="p-2 bg-light rounded text-dark fw-bold" id="verNombre"></div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Número de Teléfono</span>
+                            <div class="p-2 bg-light rounded text-dark" id="verTelefono"></div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Correo Electrónico</span>
+                            <div class="p-2 bg-light rounded text-dark text-lowercase" id="verCorreo"></div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Área / Departamento</span>
+                            <div class="p-2 bg-light rounded text-dark" id="verArea"></div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Sexo / Género</span>
+                            <div class="p-2 bg-light rounded text-dark" id="verSexo"></div>
+                        </div>
+                        <div class="col-12">
+                            <span class="text-muted d-block small fw-bold text-uppercase">Dirección Completa de Habitación</span>
+                            <div class="p-2 bg-light rounded text-dark" id="verDireccion"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content rounded-3 border-0 shadow">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Modificar Datos Guardados</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="formEditar">
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="editIndex">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-secondary">Cédula de Identidad</label>
+                                <input type="text" class="form-control" id="editCedula" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-secondary">Nombres y Apellidos</label>
+                                <input type="text" class="form-control" id="editNombre" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-secondary">Número de Teléfono</label>
+                                <input type="tel" class="form-control" id="editTelefono" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-secondary">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="editCorreo" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-secondary">Área o Departamento</label>
+                                <select class="form-select" id="editArea" required>
+                                    <option value="Informática / Sistemas">Informática / Sistemas</option>
+                                    <option value="Seguridad / Planta">Seguridad / Planta</option>
+                                    <option value="Mantenimiento Técnico">Mantenimiento Técnico</option>
+                                    <option value="Administración">Administración</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-secondary">Sexo / Género</label>
+                                <select class="form-select" id="editSexo" required>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Femenino">Femenino</option>
+                                    <option value="Otro">Otro / No especifica</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-secondary">Dirección Completa de Habitación</label>
+                                <input type="text" class="form-control" id="editDireccion" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning fw-bold px-4">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <footer class="mt-auto py-3 bg-white border-top text-center text-muted font-monospace small">
+        Control de Instalación © 2026
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Arreglo semilla si el LocalStorage está vacío
+        const datosIniciales = [
+            { 
+                cedula: "V-12.345.678", 
+                nombre: "Carlos Mendoza", 
+                sexo: "Masculino",
+                telefono: "0412-5551234",
+                correo: "carlos.m@empresa.com",
+                area: "Informática / Sistemas",
+                direccion: "Av. Principal, Sector Centro"
+            }
+        ];
+
+        let personal = JSON.parse(localStorage.getItem('personalData'));
+        if (!personal) {
+            personal = datosIniciales;
+            localStorage.setItem('personalData', JSON.stringify(personal));
+        }
+
+        // CONTROL DE RUTAS VIRTUALES (Cambio de Secciones sin recargar)
+        function cambiarVista(vistaDestino) {
+            // Ocultar todas las vistas
+            document.querySelectorAll('.seccion-vista').forEach(seccion => {
+                seccion.classList.remove('activa');
+            });
+            
+            // Mostrar la vista seleccionada
+            if(vistaDestino === 'inicio') document.getElementById('vista-inicio').classList.add('activa');
+            if(vistaDestino === 'registrar') document.getElementById('vista-registrar').classList.add('activa');
+            if(vistaDestino === 'listado') {
+                document.getElementById('vista-listado').classList.add('activa');
+                cargarTabla(); // Recargar la tabla por si hay datos nuevos
+            }
+            window.scrollTo(0,0);
+        }
+
+        // RENDERIZAR TABLA COMPACTA
+        const cuerpoTabla = document.getElementById('cuerpoTabla');
+        function cargarTabla() {
+            cuerpoTabla.innerHTML = "";
+            
+            if(personal.length === 0) {
+                cuerpoTabla.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-5 fs-4">No hay registros guardados.</td></tr>`;
+                return;
+            }
+
+            personal.forEach((empleado, index) => {
+                let badgeClass = "bg-secondary text-white";
+                if (empleado.area.includes("Informática")) badgeClass = "bg-info text-dark fw-semibold";
+                else if (empleado.area.includes("Seguridad")) badgeClass = "bg-warning text-dark fw-semibold";
+                else if (empleado.area.includes("Mantenimiento")) badgeClass = "bg-dark text-white";
+                else if (empleado.area.includes("Administración")) badgeClass = "bg-primary text-white";
+
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td class="fw-bold text-secondary">${empleado.cedula}</td>
+                    <td class="fw-semibold text-dark">${empleado.nombre}</td>
+                    <td><span class="badge ${badgeClass} px-2 py-2 rounded-2">${empleado.area}</span></td>
+                    <td class="text-center text-nowrap">
+                        <button class="btn btn-info btn-sm px-2 me-1 fw-semibold text-dark" onclick="abrirModalVer(${index})">
+                            <i class="bi bi-eye-fill"></i> Ver todo
+                        </button>
+                        <button class="btn btn-warning btn-sm px-2 me-1 fw-semibold" onclick="abrirModalEditar(${index})">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm px-2" onclick="eliminarPersonal(${index})">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </td>
+                `;
+                cuerpoTabla.appendChild(fila);
+            });
+        }
+
+        // PROCESAR E INSERTA NUEVO PERSONAL (CREATE)
+        document.getElementById('formRegistro').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const cedula = document.getElementById('regCedula').value.trim();
+            const nombre = document.getElementById('regNombre').value.trim();
+            const telefono = document.getElementById('regTelefono').value.trim();
+            const correo = document.getElementById('regCorreo').value.trim();
+            const direccion = document.getElementById('regDireccion').value.trim();
+            const area = document.getElementById('regArea').value;
+            const sexo = document.getElementById('regSexo').value;
+
+            if(personal.some(p => p.cedula.toLowerCase() === cedula.toLowerCase())) {
+                alert('Atención: Ya existe un expediente con este número de cédula.');
+                return;
+            }
+
+            personal.push({ cedula, nombre, telefono, correo, area, sexo, direccion });
+            localStorage.setItem('personalData', JSON.stringify(personal));
+
+            // Limpiar formulario y saltar al listado
+            document.getElementById('formRegistro').reset();
+            cambiarVista('listado');
+        });
+
+        // DESPLEGAR MODAL CON LOS 7 DATOS (READ DETALLADO)
+        window.abrirModalVer = function(index) {
+            const emp = personal[index];
+            document.getElementById('verCedula').innerText = emp.cedula;
+            document.getElementById('verNombre').innerText = emp.nombre;
+            document.getElementById('verTelefono').innerText = emp.telefono;
+            document.getElementById('verCorreo').innerText = emp.correo;
+            document.getElementById('verArea').innerText = emp.area;
+            document.getElementById('verSexo').innerText = emp.sexo;
+            document.getElementById('verDireccion').innerText = emp.direccion;
+            
+            let myModal = new bootstrap.Modal(document.getElementById('modalVer'));
+            myModal.show();
+        }
+
+        // CARGAR DATOS EN EL FORMULARIO DE EDICIÓN
+        window.abrirModalEditar = function(index) {
+            const emp = personal[index];
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editCedula').value = emp.cedula;
+            document.getElementById('editNombre').value = emp.nombre;
+            document.getElementById('editTelefono').value = emp.telefono;
+            document.getElementById('editCorreo').value = emp.correo;
+            document.getElementById('editArea').value = emp.area;
+            document.getElementById('editSexo').value = emp.sexo;
+            document.getElementById('editDireccion').value = emp.direccion;
+
+            let myModal = new bootstrap.Modal(document.getElementById('modalEditar'));
+            myModal.show();
+        }
+
+        // PROCESAR EDICIÓN (UPDATE)
+        document.getElementById('formEditar').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const index = document.getElementById('editIndex').value;
+
+            personal[index].cedula = document.getElementById('editCedula').value.trim();
+            personal[index].nombre = document.getElementById('editNombre').value.trim();
+            personal[index].telefono = document.getElementById('editTelefono').value.trim();
+            personal[index].correo = document.getElementById('editCorreo').value.trim();
+            personal[index].area = document.getElementById('editArea').value;
+            personal[index].sexo = document.getElementById('editSexo').value;
+            personal[index].direccion = document.getElementById('editDireccion').value.trim();
+
+            localStorage.setItem('personalData', JSON.stringify(personal));
+            
+            bootstrap.Modal.getInstance(document.getElementById('modalEditar')).hide();
+            cargarTabla();
+        });
+
+        // BORRAR EXPEDIENTE (DELETE)
+        window.eliminarPersonal = function(index) {
+            if(confirm(`¿Desea borrar permanentemente a ${personal[index].nombre}?`)) {
+                personal.splice(index, 1);
+                localStorage.setItem('personalData', JSON.stringify(personal));
+                cargarTabla();
+            }
+        }
+
+        // FILTRO DE BUSQUEDA INTELIGENTE EN TIEMPO REAL (POR NOMBRE O CÉDULA)
+        document.getElementById('buscador').addEventListener('keyup', function() {
+            let valor = this.value.toLowerCase();
+            let filas = document.querySelectorAll('#tablaPersonal tbody tr');
+            
+            filas.forEach(fila => {
+                let celdaCedula = fila.cells[0] ? fila.cells[0].textContent.toLowerCase() : '';
+                let celdaNombre = fila.cells[1] ? fila.cells[1].textContent.toLowerCase() : '';
+                
+                if (celdaCedula.includes(valor) || celdaNombre.includes(valor)) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
